@@ -5,6 +5,9 @@ import sys, os, heapq, math
 import pygame as pg
 from pygame.locals import *
 # --------------------------------------------
+# TODO:  
+# 1. wrong path when user allow diagonal lines(in_in_open() not changed the cell) - FIX 2019/11/27
+# --------------------------------------------
 # pygame initialize
 pg.init()
 # center
@@ -97,11 +100,13 @@ class Astar:
         return False
 
     def is_in_open(self, cell): # if the cell isn't in the open list, return False
-        for exist in self.open:
-            if exist == cell: # if already exist, compare
-                if exist > cell:
-                    exist = cell
+        for exist in range(len(self.open)):
+            if self.open[exist] == cell: # if already exist, compare
+                if cell < self.open[exist]:
+                    self.open[exist] = cell
+
                 return True
+
         return False
 
     def calculate_heuristic(self, coord): 
@@ -148,6 +153,7 @@ class Astar:
                 neighbour.F = neighbour.G + neighbour.H
                 if not self.is_in_open(neighbour):
                     heapq.heappush(self.open, neighbour)
+                    # self.open.append(neighbour) # if the open list is list
             
             if self.is_valid(topleft):
                 neighbour = Cell(topleft)
@@ -157,6 +163,7 @@ class Astar:
                 neighbour.F = neighbour.G + neighbour.H
                 if not self.is_in_open(neighbour):
                     heapq.heappush(self.open, neighbour)
+                    # self.open.append(neighbour) # if the open list is list
             
             if self.is_valid(bottomright):
                 neighbour = Cell(bottomright)
@@ -165,7 +172,8 @@ class Astar:
                 neighbour.H = self.calculate_heuristic(neighbour.coord)
                 neighbour.F = neighbour.G + neighbour.H
                 if not self.is_in_open(neighbour):
-                    heapq.heappush(self.open, neighbour)     
+                    heapq.heappush(self.open, neighbour)
+                    # self.open.append(neighbour) # if the open list is list    
 
             if self.is_valid(bottomleft):
                 neighbour = Cell(bottomleft)
@@ -175,6 +183,7 @@ class Astar:
                 neighbour.F = neighbour.G + neighbour.H
                 if not self.is_in_open(neighbour):
                     heapq.heappush(self.open, neighbour)
+                    # self.open.append(neighbour) # if the open list is list
         
         if self.is_valid(up):
             neighbour = Cell(up)
@@ -184,6 +193,7 @@ class Astar:
             neighbour.F = neighbour.G + neighbour.H # F-cost = G-cost + H-cost
             if not self.is_in_open(neighbour): # if neighbor doesn't exist in the open list, push
                 heapq.heappush(self.open, neighbour)
+                # self.open.append(neighbour) # if the open list is list
 
         if self.is_valid(down):
             neighbour = Cell(down)
@@ -193,6 +203,7 @@ class Astar:
             neighbour.F = neighbour.G + neighbour.H
             if not self.is_in_open(neighbour):
                 heapq.heappush(self.open, neighbour)
+                # self.open.append(neighbour) # if the open list is list
 
         if self.is_valid(right):
             neighbour = Cell(right)
@@ -202,6 +213,7 @@ class Astar:
             neighbour.F = neighbour.G + neighbour.H
             if not self.is_in_open(neighbour):
                 heapq.heappush(self.open, neighbour)
+                # self.open.append(neighbour) # if the open list is list
 
         if self.is_valid(left):
             neighbour = Cell(left)
@@ -211,6 +223,9 @@ class Astar:
             neighbour.F = neighbour.G + neighbour.H
             if not self.is_in_open(neighbour):
                 heapq.heappush(self.open, neighbour)
+                # self.open.append(neighbour) # if the open list is list
+        
+        # self.open = sorted(self.open) # if the open list is list
 
     def find(self):
         no_path = True # flag
@@ -221,6 +236,12 @@ class Astar:
         while True: # find the shortest path
             if not self.open: break # if the open list is empty, break
             
+            # print("---------------------")
+            # for o in self.open:
+            #     print(o.coord, o.F, end = " ")
+            # print("\n---------------------") # debugging
+            
+            # cell = self.open.pop(0) # if the open list is list
             cell = heapq.heappop(self.open) # pop one cell with the smallest F-cost in the open list
 
             # draw the process
@@ -233,7 +254,7 @@ class Astar:
             if not (cell.coord == self.start or cell.coord == self.end):
                 cell.draw(BLUE)
 
-            pg.time.wait(40) # delay
+            pg.time.wait(50) # delay
 
             self.closed.append(cell) # put the cell in the closed list
             if cell.coord == self.end: # if cell.coord is the destination(e.g. the ending point is in closed list), break
@@ -303,6 +324,7 @@ def add(one, another):
         result.append(a + b)
     return result
 
+# --------------------------------------------
 def txt(pos, text):
     x, y = pos
     x = (gridwidth + x) * cellsize + 10
@@ -346,6 +368,7 @@ def execute():
     start = 0, 0
     grid[gridwidth - 1][gridheight - 1] = END # set the ending point
     end = gridwidth - 1, gridheight - 1
+    
     # initialize menu
     manhattan = Option([0, 1], "manhattan")
     manhattan.state = True
@@ -354,7 +377,6 @@ def execute():
     chebyshev = Option([0, 3], "chebyshev")
     octile = Option([0, 4], "octile")
     options = [manhattan, euclidean, chebyshev, octile]
-    
     diagonal = Option([0, 7], "diagonal")
     diagonal.state = True
     weight = 20
@@ -422,15 +444,16 @@ def execute():
                                 grid[x][y] = PATH
                             elif grid[x][y] == PATH:
                                 grid[x][y] = WALL
-                            
                     elif is_start_clicked and not ((x, y) == end):
-                        grid[start[0]][start[1]] = PATH
-                        grid[x][y] = START
-                        start = x, y
+                        if grid[x][y] != WALL:
+                            grid[start[0]][start[1]] = PATH
+                            grid[x][y] = START
+                            start = x, y
                     elif is_end_clicked and  not ((x, y) == start):
-                        grid[end[0]][end[1]] = PATH
-                        grid[x][y] = END
-                        end = x, y               
+                        if grid[x][y] != WALL:
+                            grid[end[0]][end[1]] = PATH
+                            grid[x][y] = END
+                            end = x, y               
 
             elif e.type == MOUSEBUTTONUP: # release
                 if is_cell_clicked:
