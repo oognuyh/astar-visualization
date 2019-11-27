@@ -87,7 +87,7 @@ class Astar:
         self.weight = weight # heuristic weight
         self.closed = [] # closed list
         self.open = [] # open list
-        heapq.heapify(self.open) # list into heap
+        # heapq.heapify(self.open) # list into heap
 
     def is_valid(self, coord):
         x, y = coord
@@ -139,6 +139,7 @@ class Astar:
         right = add(cell.coord, RIGHT)
         left = add(cell.coord, LEFT)
         display = []
+        
         if self.diagonal: # if user allowed diagonal lines, visit 8 directions
             topright = add(cell.coord, TOPRIGHT)
             topleft = add(cell.coord, TOPLEFT)
@@ -152,8 +153,8 @@ class Astar:
                 neighbour.H = self.calculate_heuristic(neighbour.coord)
                 neighbour.F = neighbour.G + neighbour.H
                 if not self.is_in_open(neighbour):
-                    heapq.heappush(self.open, neighbour)
-                    # self.open.append(neighbour) # if the open list is list
+                    # heapq.heappush(self.open, neighbour)
+                    self.open.append(neighbour) # if the open list is list
             
             if self.is_valid(topleft):
                 neighbour = Cell(topleft)
@@ -162,9 +163,9 @@ class Astar:
                 neighbour.H = self.calculate_heuristic(neighbour.coord)
                 neighbour.F = neighbour.G + neighbour.H
                 if not self.is_in_open(neighbour):
-                    heapq.heappush(self.open, neighbour)
-                    # self.open.append(neighbour) # if the open list is list
-            
+                    # heapq.heappush(self.open, neighbour)
+                    self.open.append(neighbour) # if the open list is list
+
             if self.is_valid(bottomright):
                 neighbour = Cell(bottomright)
                 neighbour.parent = cell.coord
@@ -172,8 +173,8 @@ class Astar:
                 neighbour.H = self.calculate_heuristic(neighbour.coord)
                 neighbour.F = neighbour.G + neighbour.H
                 if not self.is_in_open(neighbour):
-                    heapq.heappush(self.open, neighbour)
-                    # self.open.append(neighbour) # if the open list is list    
+                    # heapq.heappush(self.open, neighbour)
+                    self.open.append(neighbour) # if the open list is list   
 
             if self.is_valid(bottomleft):
                 neighbour = Cell(bottomleft)
@@ -182,8 +183,8 @@ class Astar:
                 neighbour.H = self.calculate_heuristic(neighbour.coord)
                 neighbour.F = neighbour.G + neighbour.H
                 if not self.is_in_open(neighbour):
-                    heapq.heappush(self.open, neighbour)
-                    # self.open.append(neighbour) # if the open list is list
+                    # heapq.heappush(self.open, neighbour)
+                    self.open.append(neighbour) # if the open list is list
         
         if self.is_valid(up):
             neighbour = Cell(up)
@@ -192,8 +193,8 @@ class Astar:
             neighbour.H = self.calculate_heuristic(neighbour.coord)
             neighbour.F = neighbour.G + neighbour.H # F-cost = G-cost + H-cost
             if not self.is_in_open(neighbour): # if neighbor doesn't exist in the open list, push
-                heapq.heappush(self.open, neighbour)
-                # self.open.append(neighbour) # if the open list is list
+                # heapq.heappush(self.open, neighbour)
+                self.open.append(neighbour) # if the open list is list
 
         if self.is_valid(down):
             neighbour = Cell(down)
@@ -202,8 +203,8 @@ class Astar:
             neighbour.H = self.calculate_heuristic(neighbour.coord)
             neighbour.F = neighbour.G + neighbour.H
             if not self.is_in_open(neighbour):
-                heapq.heappush(self.open, neighbour)
-                # self.open.append(neighbour) # if the open list is list
+                # heapq.heappush(self.open, neighbour)
+                self.open.append(neighbour) # if the open list is list
 
         if self.is_valid(right):
             neighbour = Cell(right)
@@ -212,8 +213,8 @@ class Astar:
             neighbour.H = self.calculate_heuristic(neighbour.coord)
             neighbour.F = neighbour.G + neighbour.H
             if not self.is_in_open(neighbour):
-                heapq.heappush(self.open, neighbour)
-                # self.open.append(neighbour) # if the open list is list
+                # heapq.heappush(self.open, neighbour)
+                self.open.append(neighbour) # if the open list is list
 
         if self.is_valid(left):
             neighbour = Cell(left)
@@ -222,16 +223,17 @@ class Astar:
             neighbour.H = self.calculate_heuristic(neighbour.coord)
             neighbour.F = neighbour.G + neighbour.H
             if not self.is_in_open(neighbour):
-                heapq.heappush(self.open, neighbour)
-                # self.open.append(neighbour) # if the open list is list
+                # heapq.heappush(self.open, neighbour)
+                self.open.append(neighbour) # if the open list is list
         
-        # self.open = sorted(self.open) # if the open list is list
+        self.open = sorted(self.open) # if the open list is list
 
     def find(self):
         no_path = True # flag
 
         cell = Cell(self.start) # the first cell is starting point
-        heapq.heappush(self.open, cell) # push into the priority queue
+        self.open.append(cell) # if the open list is list
+        # heapq.heappush(self.open, cell) # push into the heapq
 
         while True: # find the shortest path
             if not self.open: break # if the open list is empty, break
@@ -241,8 +243,8 @@ class Astar:
             #     print(o.coord, o.F, end = " ")
             # print("\n---------------------") # debugging
             
-            # cell = self.open.pop(0) # if the open list is list
-            cell = heapq.heappop(self.open) # pop one cell with the smallest F-cost in the open list
+            cell = self.open.pop(0) # if the open list is list
+            # cell = heapq.heappop(self.open) # pop one cell with the smallest F-cost in the open list
 
             # draw the process
             for o in self.open:
