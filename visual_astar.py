@@ -15,7 +15,7 @@ os.environ['SDL_VIDEO_CENTERED'] = '1'
 pg.display.set_caption("A* visualization")
 width = 800
 height = 800
-menuside = 240
+menuside = 270
 screen = pg.display.set_mode((width + menuside, height))
 # --------------------------------------------
 # define points
@@ -78,7 +78,7 @@ class Cell:
         pg.display.update(pg.draw.rect(screen, BLACK, (x * cellsize, y * cellsize, cellsize, cellsize), 1)) # outline
 
 class Astar:
-    def __init__(self, grid, start, end, weight, using, diagonal):
+    def __init__(self, grid, start, end, weight, using, diagonal, open_is_heapq):
         self.grid = grid
         self.start = list(start) # the starting point
         self.end = list(end) # the ending point
@@ -87,7 +87,9 @@ class Astar:
         self.weight = weight # heuristic weight
         self.closed = [] # closed list
         self.open = [] # open list
-        # heapq.heapify(self.open) # list into heap
+        self.open_is_heapq = open_is_heapq
+        if self.open_is_heapq:
+            heapq.heapify(self.open) # list into heap
 
     def is_valid(self, coord):
         x, y = coord
@@ -139,7 +141,6 @@ class Astar:
         right = add(cell.coord, RIGHT)
         left = add(cell.coord, LEFT)
         display = []
-        
         if self.diagonal: # if user allowed diagonal lines, visit 8 directions
             topright = add(cell.coord, TOPRIGHT)
             topleft = add(cell.coord, TOPLEFT)
@@ -153,8 +154,10 @@ class Astar:
                 neighbour.H = self.calculate_heuristic(neighbour.coord)
                 neighbour.F = neighbour.G + neighbour.H
                 if not self.is_in_open(neighbour):
-                    # heapq.heappush(self.open, neighbour)
-                    self.open.append(neighbour) # if the open list is list
+                    if self.open_is_heapq:
+                        heapq.heappush(self.open, neighbour)
+                    else:
+                        self.open.append(neighbour) # if the open list is list
             
             if self.is_valid(topleft):
                 neighbour = Cell(topleft)
@@ -163,9 +166,11 @@ class Astar:
                 neighbour.H = self.calculate_heuristic(neighbour.coord)
                 neighbour.F = neighbour.G + neighbour.H
                 if not self.is_in_open(neighbour):
-                    # heapq.heappush(self.open, neighbour)
-                    self.open.append(neighbour) # if the open list is list
-
+                    if self.open_is_heapq:
+                        heapq.heappush(self.open, neighbour)
+                    else:
+                        self.open.append(neighbour) # if the open list is list
+            
             if self.is_valid(bottomright):
                 neighbour = Cell(bottomright)
                 neighbour.parent = cell.coord
@@ -173,8 +178,10 @@ class Astar:
                 neighbour.H = self.calculate_heuristic(neighbour.coord)
                 neighbour.F = neighbour.G + neighbour.H
                 if not self.is_in_open(neighbour):
-                    # heapq.heappush(self.open, neighbour)
-                    self.open.append(neighbour) # if the open list is list   
+                    if self.open_is_heapq:
+                        heapq.heappush(self.open, neighbour)
+                    else:
+                        self.open.append(neighbour) # if the open list is list   
 
             if self.is_valid(bottomleft):
                 neighbour = Cell(bottomleft)
@@ -183,8 +190,10 @@ class Astar:
                 neighbour.H = self.calculate_heuristic(neighbour.coord)
                 neighbour.F = neighbour.G + neighbour.H
                 if not self.is_in_open(neighbour):
-                    # heapq.heappush(self.open, neighbour)
-                    self.open.append(neighbour) # if the open list is list
+                    if self.open_is_heapq:
+                        heapq.heappush(self.open, neighbour)
+                    else:
+                        self.open.append(neighbour) # if the open list is list
         
         if self.is_valid(up):
             neighbour = Cell(up)
@@ -193,8 +202,10 @@ class Astar:
             neighbour.H = self.calculate_heuristic(neighbour.coord)
             neighbour.F = neighbour.G + neighbour.H # F-cost = G-cost + H-cost
             if not self.is_in_open(neighbour): # if neighbor doesn't exist in the open list, push
-                # heapq.heappush(self.open, neighbour)
-                self.open.append(neighbour) # if the open list is list
+                if self.open_is_heapq:
+                    heapq.heappush(self.open, neighbour)
+                else:
+                    self.open.append(neighbour) # if the open list is list
 
         if self.is_valid(down):
             neighbour = Cell(down)
@@ -203,9 +214,10 @@ class Astar:
             neighbour.H = self.calculate_heuristic(neighbour.coord)
             neighbour.F = neighbour.G + neighbour.H
             if not self.is_in_open(neighbour):
-                # heapq.heappush(self.open, neighbour)
-                self.open.append(neighbour) # if the open list is list
-
+                if self.open_is_heapq:
+                    heapq.heappush(self.open, neighbour)
+                else:
+                    self.open.append(neighbour) # if the open list is list
         if self.is_valid(right):
             neighbour = Cell(right)
             neighbour.parent = cell.coord
@@ -213,8 +225,10 @@ class Astar:
             neighbour.H = self.calculate_heuristic(neighbour.coord)
             neighbour.F = neighbour.G + neighbour.H
             if not self.is_in_open(neighbour):
-                # heapq.heappush(self.open, neighbour)
-                self.open.append(neighbour) # if the open list is list
+                if self.open_is_heapq:
+                    heapq.heappush(self.open, neighbour)
+                else:
+                    self.open.append(neighbour) # if the open list is list
 
         if self.is_valid(left):
             neighbour = Cell(left)
@@ -223,28 +237,36 @@ class Astar:
             neighbour.H = self.calculate_heuristic(neighbour.coord)
             neighbour.F = neighbour.G + neighbour.H
             if not self.is_in_open(neighbour):
-                # heapq.heappush(self.open, neighbour)
-                self.open.append(neighbour) # if the open list is list
+                if self.open_is_heapq:
+                    heapq.heappush(self.open, neighbour)
+                else:
+                    self.open.append(neighbour) # if the open list is list
         
-        self.open = sorted(self.open) # if the open list is list
+        if not self.open_is_heapq:
+            self.open = sorted(self.open) # if the open list is list
 
     def find(self):
         no_path = True # flag
 
         cell = Cell(self.start) # the first cell is starting point
-        self.open.append(cell) # if the open list is list
-        # heapq.heappush(self.open, cell) # push into the heapq
+        if self.open_is_heapq:
+            heapq.heappush(self.open, cell) # push into the priority queue
+        else:
+            self.open.append(cell)
 
         while True: # find the shortest path
             if not self.open: break # if the open list is empty, break
-            
+            # print("---------------------")
+            # print("current = ", cell.coord)
             # print("---------------------")
             # for o in self.open:
             #     print(o.coord, o.F, end = " ")
             # print("\n---------------------") # debugging
             
-            cell = self.open.pop(0) # if the open list is list
-            # cell = heapq.heappop(self.open) # pop one cell with the smallest F-cost in the open list
+            if self.open_is_heapq:
+                cell = heapq.heappop(self.open) # pop one cell with the smallest F-cost in the open list
+            else:
+                cell = self.open.pop(0) # if the open list is list
 
             # draw the process
             for o in self.open:
@@ -351,16 +373,17 @@ def draw_grid(grid):
                 pg.draw.rect(screen, GREEN, (x * cellsize, y * cellsize, cellsize, cellsize))
                 pg.draw.rect(screen, BLACK, (x * cellsize, y * cellsize, cellsize, cellsize), 1)
 
-def draw_menu(options, diagonal, weight):
+def draw_menu(options, diagonal, weight, open_is_heapq):
     for option in options: # draw options
         option.draw()
     diagonal.draw()
+    open_is_heapq.draw()
 
     txt([0, 10], "press left") # explain how to control weight
     txt([0, 11], ", right key")
     weighttxt = "weight : "
     txt([0, 12], weighttxt + str(weight))
-    txt([0, gridheight - 1], "PRESS ENTER") # explain how to start
+    txt([0, gridheight - 1], " PRESS ENTER") # explain how to start
 
 # --------------------------------------------
 def execute():
@@ -382,6 +405,8 @@ def execute():
     diagonal = Option([0, 7], "diagonal")
     diagonal.state = True
     weight = 10
+    open_is_heapq = Option([0, 8], "using heapq")
+    open_is_heapq.state = False
 
     # clicked 
     is_cell_clicked = False
@@ -400,7 +425,7 @@ def execute():
                 sys.exit()
             if e.type == KEYDOWN:
                 if e.key == K_RETURN: # find the shortest path                    
-                    Astar(grid, start, end, weight, using, diagonal.state).find()
+                    Astar(grid, start, end, weight, using, diagonal.state, open_is_heapq.state).find()
 
                 elif e.key == K_LEFT: # weight --
                     if 1 < weight:
@@ -436,6 +461,12 @@ def execute():
                         diagonal.state = False
                     else:
                         diagonal.state = True
+                
+                if open_is_heapq.is_clicked(pos):
+                    if open_is_heapq.state:
+                        open_is_heapq.state = False
+                    else:
+                        open_is_heapq.state = True
 
             elif e.type == MOUSEMOTION: # move
                 if x < gridwidth:
@@ -469,11 +500,11 @@ def execute():
         screen.fill(BLACK) # background
 
         draw_grid(grid)
-        draw_menu(options, diagonal, weight)
+        draw_menu(options, diagonal, weight, open_is_heapq)
 
         pg.display.flip() # update the screen
         pg.time.Clock().tick(FPS) # fps
-
+ 
 # --------------------------------------------
 if __name__ == "__main__":
     execute()
