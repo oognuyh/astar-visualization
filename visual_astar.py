@@ -381,7 +381,7 @@ def execute():
     options = [manhattan, euclidean, chebyshev, octile]
     diagonal = Option([0, 7], "diagonal")
     diagonal.state = True
-    weight = 20
+    weight = 10
 
     # clicked 
     is_cell_clicked = False
