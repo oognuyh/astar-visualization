@@ -283,7 +283,7 @@ class Astar:
             if not (cell.coord == self.start or cell.coord == self.end):
                 cell.draw(BLUE)
 
-            pg.time.delay(70) # delay 0.5sec
+            pg.time.delay(70) # delay
 
             self.closed.append(cell) # put the cell in the closed list
             if cell.coord == self.end: # if cell.coord is the destination(e.g. the ending point is in closed list), break
