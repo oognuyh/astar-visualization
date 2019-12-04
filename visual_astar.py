@@ -255,6 +255,11 @@ class Astar:
             self.open.append(cell)
 
         while True: # find the shortest path
+            for e in pg.event.get():
+                if e.type == QUIT: # terminate the program
+                    pg.quit()
+                    sys.exit()
+
             if not self.open: break # if the open list is empty, break
             # print("---------------------")
             # print("current = ", cell.coord)
@@ -278,7 +283,7 @@ class Astar:
             if not (cell.coord == self.start or cell.coord == self.end):
                 cell.draw(BLUE)
 
-            pg.time.wait(50) # delay
+            pg.time.delay(70) # delay 0.5sec
 
             self.closed.append(cell) # put the cell in the closed list
             if cell.coord == self.end: # if cell.coord is the destination(e.g. the ending point is in closed list), break
@@ -287,7 +292,7 @@ class Astar:
 
             self.neighbours(cell) # visit neighbors
         
-        pg.time.wait(1000) # delay 1 sec
+        pg.time.delay(1000) # delay 1 sec
         
         if no_path: # if not found, return
             return
@@ -305,8 +310,7 @@ class Astar:
                     cell = exist
                     break
             
-        pg.display.flip()
-        pg.time.wait(1000)
+        pg.time.delay(1500) # delay 1.5 sec
 
 class Option:
     def __init__(self, coord, text):
