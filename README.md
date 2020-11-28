@@ -23,6 +23,7 @@ This is a program implemented to learn more about A* algorithm.
   * Color  
     * Red : start point
     * Green : end point
+    * Blue : current point
     * Yellow : points in open list
     * Orange : points in closed list
     * Grey : Path
