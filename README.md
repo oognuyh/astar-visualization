@@ -14,7 +14,7 @@ This is a program implemented to learn more about A* algorithm.
 ## Usage
   ```  
   // if pygame is not installed
-  pip install pygame
+  pip3 install pygame
   
   // visual_astar.py and PrStart.ttf(Font) files must be in the same path
   python3 visual_astar.py
